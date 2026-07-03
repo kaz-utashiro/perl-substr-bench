@@ -40,6 +40,8 @@ Background (Japanese): https://qiita.com/kaz-utashiro/items/d7047abb8531d5afc40a
 | 5.42.0 | 1.4326 | **SLOW** |
 | 5.42.1 | 1.4741 | **SLOW** |
 | 5.42.2 | 1.4770 | **SLOW** |
+| 5.44.0-RC1 (built from source) | 1.4817 | **SLOW** |
+| blead 2026-07-03 (built from source) | 1.6005 | **SLOW** |
 
 The regression was introduced between 5.34 and 5.36.
 
@@ -63,4 +65,5 @@ https://github.com/Perl/perl5/commit/e6e9dd290698d47a0db9e1d676d2b82e0bb0a52b
 
 The same code structure is present in blead as of 2026-07: results
 computed via `S_sv_pos_u2b_midway` never set `canonical_position`,
-so they are never cached.
+so they are never cached.  Verified empirically by building blead and
+v5.44.0-RC1 from source ([run](https://github.com/kaz-utashiro/perl-substr-bench/actions/runs/28648001769)): both are still affected.
