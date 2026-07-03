@@ -1,0 +1,38 @@
+name: bisect
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bisect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: checkout perl/perl5
+        uses: actions/checkout@v5
+        with:
+          repository: perl/perl5
+          fetch-depth: 0
+      - name: write testcase
+        run: |
+          cat > "$RUNNER_TEMP/testcase.pl" <<'PL'
+          use Time::HiRes qw(time);
+          my $s = chr(0x3042) x 10_000_000;
+          sub t {
+              my $pos = shift;
+              my $t = time;
+              substr($s, $pos, 10) for 1 .. 50;
+              time - $t;
+          }
+          my $near = t(1_000);
+          my $far  = t(9_000_000);
+          printf STDERR "near=%.4f far=%.4f\n", $near, $far;
+          # good: cache works, far is as cheap as near
+          # bad: every call walks from the head, far is much slower
+          exit($far - $near > 0.05 ? 1 : 0);
+          PL
+      - name: bisect
+        run: |
+          perl Porting/bisect.pl --jobs=4 \
+              --start v5.34.0 --end v5.36.0 \
+              -- ./perl -Ilib "$RUNNER_TEMP/testcase.pl"
