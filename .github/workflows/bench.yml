@@ -1,0 +1,50 @@
+name: bench
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.36.0'
+          - '5.36.1'
+          - '5.36.2'
+          - '5.36.3'
+          - '5.38.0'
+          - '5.38.1'
+          - '5.38.2'
+          - '5.38.3'
+          - '5.38.4'
+          - '5.38.5'
+          - '5.40.0'
+          - '5.40.1'
+          - '5.40.2'
+          - '5.40.3'
+          - '5.40.4'
+          - '5.42.0'
+          - '5.42.1'
+          - '5.42.2'
+    name: perl ${{ matrix.perl }}
+    steps:
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+      - name: bench
+        run: |
+          perl -MTime::HiRes=time -e '
+            my $s = chr(0x3042) x 20_000_000;
+            my $n = length $s;
+            my $best;
+            for my $r (1..3) {
+              my $t = time;
+              substr($s, int($n * $_ / 101), 10) for 1 .. 100;
+              my $e = time - $t;
+              $best = $e if !defined $best || $e < $best;
+            }
+            printf "RESULT perl=%vd time=%.4f verdict=%s\n", $^V, $best, $best > 0.1 ? "SLOW" : "ok";
+          ' | tee -a "$GITHUB_STEP_SUMMARY"
