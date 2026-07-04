@@ -78,14 +78,19 @@ performance issue.  Measured with 12k matches
 ([run](https://github.com/kaz-utashiro/perl-substr-bench/actions/runs/28690440946),
 see [atmark.yml](.github/workflows/atmark.yml)):
 
-| perl | `@-`/`@+` (sec) | vs pos()/`${^MATCH}` |
-|---|---:|---:|
-| 5.32.1 – 5.36.3 | 6.5 – 8.3 | 1900 – 3300x slower |
-| 5.38.0 – 5.42.2 | 0.52 – 0.59 | 150 – 190x slower |
+| perl | `@-`/`@+` (sec) | pos() (sec) | ratio |
+|---|---:|---:|---:|
+| 5.12.5 | 1.45 | 0.153 | 9x |
+| 5.14.4 – 5.16.3 | 2.9 – 3.3 | 0.15 | 20x |
+| 5.18.4 | 6.5 | 0.068 | 95x |
+| 5.20.3 – 5.36.3 | 5.7 – 8.4 | 0.003 | ~2000x |
+| 5.38.0 – 5.42.2 | 0.46 – 0.57 | 0.003 | 150 – 190x |
 
-It improved greatly in 5.38.0 (unrelated to the substr regression
-which started in 5.36.0), but is still two orders of magnitude slower
-than the pos()-based alternative.
+pos() was also affected in the 5.12–5.16 era, was half-fixed in 5.18
+and fully fixed in 5.20.  `@-`/`@+` never was: it got slower in 5.14
+and again in 5.18, improved ~12x in 5.38.0 (unrelated to the substr
+regression which started in 5.36.0), and is still two orders of
+magnitude slower than the pos()-based alternative.
 
 ## Proposed fix
 
