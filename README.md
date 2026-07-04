@@ -86,3 +86,18 @@ see [atmark.yml](.github/workflows/atmark.yml)):
 It improved greatly in 5.38.0 (unrelated to the substr regression
 which started in 5.36.0), but is still two orders of magnitude slower
 than the pos()-based alternative.
+
+## Proposed fix
+
+[sv-canonical-position.patch](sv-canonical-position.patch) (against
+blead 57f455a) sets `canonical_position` on the `S_sv_pos_u2b_midway`
+paths in `S_sv_pos_u2b_cached()`: unconditionally where the offset is
+bounded by a cached position, and `uoffset <= mg_len` where it is
+bounded by the known end, so out-of-range positions are still never
+cached (preserving the fix for perl/perl5#18588).
+
+Verified: benchmark restored to pre-5.36 speed (1.60s -> 0.010s),
+perl core test suite passes (the only failure, t/run/locale.t test 49,
+fails identically without the patch on macOS), `${^UTF8CACHE} = -1`
+assertion mode random stress passes, and cut results are byte-identical
+across 5.34.1 / 5.42.2 / patched blead.
