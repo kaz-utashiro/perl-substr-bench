@@ -5,6 +5,8 @@ introduced the substr/UTF-8 position cache regression.
 
 Background (Japanese): https://qiita.com/kaz-utashiro/items/d7047abb8531d5afc40a
 
+Reported: https://github.com/Perl/perl5/issues/24531
+
 ## Benchmark
 
 100 substr() calls at increasing positions on a 20M-char UTF-8 string
