@@ -75,7 +75,7 @@ v5.44.0-RC1 from source ([run](https://github.com/kaz-utashiro/perl-substr-bench
 The byte-to-char direction (`sv_pos_b2u`, used when reading `@-` /
 `@+` after a match on a utf8 string) is a separate, much older
 performance issue.  Measured with 12k matches
-([run](https://github.com/kaz-utashiro/perl-substr-bench/actions/runs/28690440946),
+([run](https://github.com/kaz-utashiro/perl-substr-bench/actions/runs/28709426205),
 see [atmark.yml](.github/workflows/atmark.yml)):
 
 | perl | `@-`/`@+` (sec) | pos() (sec) | ratio |
