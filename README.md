@@ -69,3 +69,20 @@ The same code structure is present in blead as of 2026-07: results
 computed via `S_sv_pos_u2b_midway` never set `canonical_position`,
 so they are never cached.  Verified empirically by building blead and
 v5.44.0-RC1 from source ([run](https://github.com/kaz-utashiro/perl-substr-bench/actions/runs/28648001769)): both are still affected.
+
+## Related: `@-` / `@+` performance (separate issue)
+
+The byte-to-char direction (`sv_pos_b2u`, used when reading `@-` /
+`@+` after a match on a utf8 string) is a separate, much older
+performance issue.  Measured with 12k matches
+([run](https://github.com/kaz-utashiro/perl-substr-bench/actions/runs/28690440946),
+see [atmark.yml](.github/workflows/atmark.yml)):
+
+| perl | `@-`/`@+` (sec) | vs pos()/`${^MATCH}` |
+|---|---:|---:|
+| 5.32.1 – 5.36.3 | 6.5 – 8.3 | 1900 – 3300x slower |
+| 5.38.0 – 5.42.2 | 0.52 – 0.59 | 150 – 190x slower |
+
+It improved greatly in 5.38.0 (unrelated to the substr regression
+which started in 5.36.0), but is still two orders of magnitude slower
+than the pos()-based alternative.
