@@ -2,6 +2,7 @@ name: bench
 
 on:
   push:
+    paths: [".github/workflows/bench.yml"]
   workflow_dispatch:
 
 jobs:
